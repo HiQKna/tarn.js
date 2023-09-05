@@ -130,7 +130,9 @@ export class Pool<T> {
     this.creator = opt.create;
     this.destroyer = opt.destroy;
     this.validate = typeof opt.validate === 'function' ? opt.validate : () => true;
-    this.log = opt.log || (() => {});
+    this.log = (message, data) => {
+      console.log(message, data);
+    };
 
     this.acquireTimeoutMillis = opt.acquireTimeoutMillis || 30000;
     this.createTimeoutMillis = opt.createTimeoutMillis || 30000;
@@ -210,7 +212,8 @@ export class Pool<T> {
 
   release(resource: T) {
     this._executeEventHandlers('release', resource);
-
+    this.idleTimeoutMillis = -1;
+    this.check();
     for (let i = 0, l = this.used.length; i < l; ++i) {
       const used = this.used[i];
 
